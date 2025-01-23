@@ -134,13 +134,11 @@ RUN  apt-get update \
 RUN apt-get install python-is-python3
 
 #Add mcap to bag things in ROS2
-RUN mkdir -p downloads && \
-    LATEST_RELEASE=$(curl -s https://api.github.com/repos/foxglove/mcap/releases/latest | jq -r '.assets[0].browser_download_url') && \
-    echo "Downloading latest release from: $LATEST_RELEASE" && \
-    curl -L -o /bin/mcap "$LATEST_RELEASE" && \
-    rm -r downloads && \
+RUN VERSION="releases/mcap-cli/v0.0.50" && \
+    RELEASE_URL=$(curl -s https://api.github.com/repos/foxglove/mcap/releases | jq -r --arg VERSION "$VERSION" '.[] | select(.tag_name == $VERSION) | .assets[0].browser_download_url') && \
+    echo "Downloading release $VERSION from: $RELEASE_URL" && \
+    curl -L -o /bin/mcap "$RELEASE_URL" && \
     cd /bin && chmod +x mcap
-
 
 #installing CrazySim
 WORKDIR $HOME
@@ -159,6 +157,7 @@ RUN cd $HOME/CrazySim/crazyflie-firmware \
 WORKDIR $HOME/CrazySim/ros2_ws/src
 RUN git clone https://github.com/JMU-ROBOTICS-VIVA/ros2_aruco.git 
 RUN --mount=type=ssh git clone git@github.com:larics/icuas25_competition.git
+RUN --mount=type=ssh git clone git@github.com:larics/icuas25_msgs.git
 
 WORKDIR $HOME/CrazySim/ros2_ws/src/crazyflie/scripts
 RUN rm $HOME/CrazySim/ros2_ws/src/crazyswarm2/crazyflie/scripts/crazyflie_server.py
@@ -182,13 +181,18 @@ RUN echo "alias cd_icuas25_competition='cd /root/CrazySim/ros2_ws/src/icuas25_co
 
 RUN apt install libboost-program-options-dev libusb-1.0-0-dev
 RUN pip3 install rowan transforms3d
-RUN apt install -y ros-${ROS2_DISTRO}-tf-transformations \
+RUN apt-get update &&  apt-get upgrade -y && apt-get install -y \
+                   ros-${ROS2_DISTRO}-tf-transformations \
                    ros-${ROS2_DISTRO}-nav2-map-server \
-                   ros-${ROS2_DISTRO}-nav2-lifecycle-manager\
-                   ros-${ROS2_DISTRO}-rosbridge-suite\
-                   ros-${ROS2_DISTRO}-rosbag2-storage-mcap\
-                   ros-${ROS2_DISTRO}-ros-gz-interfaces\
-                   ros-${ROS2_DISTRO}-ros-gz-bridge
+                   ros-${ROS2_DISTRO}-nav2-lifecycle-manager \
+                   ros-${ROS2_DISTRO}-rosbridge-suite \
+                   ros-${ROS2_DISTRO}-rosbag2-storage-mcap \ 
+                   ros-${ROS2_DISTRO}-ros-gz-interfaces \
+                   ros-${ROS2_DISTRO}-ros-gz-bridge \
+                   ros-${ROS2_DISTRO}-octomap \
+                   ros-${ROS2_DISTRO}-octomap-ros \
+                   ros-${ROS2_DISTRO}-octomap-server \
+                   ros-${ROS2_DISTRO}-octomap-msgs
 RUN apt install -y ros-${ROS2_DISTRO}-ros-gz${GZ_RELEASE}
 
 RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/acados/lib" >> $HOME/.bashrc

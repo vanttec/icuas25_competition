@@ -59,7 +59,7 @@ The following docker commands can also be helpful:
 # Start another bash shell in the already running crazysim_icuas_cont container:
 docker exec -it crazysim_icuas_cont bash
 
-# Stop the conatainer
+# Stop the container
 docker stop crazysim_icuas_cont
 
 # Delete the container
@@ -107,6 +107,25 @@ Once inside the container, navigate to `/root/CrazySim/ros2_ws/src/icuas25_compe
 * `cf_x/cmd_vel` - horizontal velocity control, vel_mux.py node subscrbes to it and publishes to `cf_x/cmd_hover`
 
 If you are working in the group and you are all using the same network, please check [ROS_DOMAIN_ID](https://docs.ros.org/en/eloquent/Tutorials/Configuring-ROS2-Environment.html#the-ros-domain-id-variable) in `.bashrc` in the container. Random number should be set during the build, however it is possible that some of you got the same number. If that is the situation please change it, so that your simulations do not crash.
+
+## Creating and working with Octomaps
+If you install `octomap_ros` package, and all its derivatives for ROS, you will be good to go to attempt to convert 3D models into octomaps. We have included a binary that converts an `.stl` file into a `.binvox` file. It is located in `scripts` folder and is called `binvox`. You can use it as follows:
+```bash
+# Convert stl to binvox
+./binvox -e res path_to_stl_file
+
+```
+This will result in a `.binvox` file. As Antun said: `res is resolution in voxels, the larger this number better the resolution. Note that this greatly impacts memory usage and process might not even start. For res=4096 on a 26MB .stl file it used around 65GB of RAM.`. For the current version of the `city_1` Octomap, we used `res` of 1000. See https://github.com/larics/larics_gazebo_worlds for more examples and some troubleshooting guidelines. 
+
+Once you have the `.binvox` file, you can use the tool `binvox2bt` provided by the `octomap` package to convert to binary tree structure that can be loaded by Octomap server:
+```bash
+# Convert stl to binvox
+binvox2bt --bb <minx> <miny> <minz> <maxx> <maxy> <maxz> path_to_file
+
+```
+If you do not want to crop the model, you can omit the bounding box. The command will result in a file with extension `.binvox.bt`, this file can then be loaded in an octomap server ROS node. An example launch file for starting the octomap server node is included in the `launch` folder. 
+
+Once the octomap server node is running, it exposes two services: `/octomap_binary` and `/octomap_full`, which can be used to access the octomap from another ROS node. 
 
 
 ## Bonus section
