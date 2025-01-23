@@ -55,19 +55,21 @@ then
 	exit 1
 fi
 
-while getopts m:w:f: option
+while getopts m:w:f:n: option
 do
 	case "${option}"
 	in
 		m) VEHICLE_MODEL=${OPTARG};;
 		w) WORLD=${OPTARG};;
 		f) COORDINATES_FILE=${OPTARG};;
+		n) NUMBER_OF_ROBOTS=${OPTARG};;
 	esac
 done
 
 world=${WORLD:=crazysim_default}
 vehicle_model=${VEHICLE_MODEL:="crazyflie"}
 coordinates_file=${COORDINATES_FILE:="single_origin.txt"}
+number_of_robots=${NUMBER_OF_ROBOTS:=5}
 export CF2_SIM_MODEL=gz_${vehicle_model}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -90,7 +92,7 @@ gz sim -s -r ${src_path}/worlds/${world}.sdf -v 3 &
 sleep 3
 
 n=0
-while IFS= read -r line || [ -n "$line" ];do
+while IFS= read -r line || [ -n "$line" ] && [ "$n" -lt "$number_of_robots" ];do
 	fields=($(printf "%s" "$line"|cut -d',' --output-delimiter=' ' -f1-))
 	spawn_model ${vehicle_model} $(($n)) ${fields[0]} ${fields[1]}
 	n=$(($n + 1))
