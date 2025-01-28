@@ -23,6 +23,8 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+#add_executable(nav_test src/nav_test.cpp)
+
 # Install Python modules
 ament_python_install_package(${PROJECT_NAME})
 
