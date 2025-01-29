@@ -156,7 +156,8 @@ RUN cd $HOME/CrazySim/crazyflie-firmware \
 #install other ROS2 ws packages
 WORKDIR $HOME/CrazySim/ros2_ws/src
 RUN git clone https://github.com/JMU-ROBOTICS-VIVA/ros2_aruco.git 
-RUN --mount=type=ssh git clone git@github.com:larics/icuas25_competition.git
+#RUN --mount=type=ssh git clone git@github.com:larics/icuas25_competition.git
+RUN --mount=type=ssh git clone git@github.com:vanttec/icuas25_competition.git
 RUN --mount=type=ssh git clone git@github.com:larics/icuas25_msgs.git
 
 WORKDIR $HOME/CrazySim/ros2_ws/src/crazyflie/scripts
