@@ -105,7 +105,7 @@ RUN apt-get install -y openssh-client
 ENV GIT_SSH_COMMAND="ssh -v"
 USER root
 
-RUN mkdir -p -m 0600 ~/.ssh/ && ssh-keyscan github.com >> ~/.ssh/known_hosts
+#RUN mkdir -p -m 0600 ~/.ssh/ && ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 # install ROS2 humble
 RUN apt update && sudo apt install locales \
@@ -140,7 +140,7 @@ RUN VERSION="releases/mcap-cli/v0.0.50" && \
     curl -L -o /bin/mcap "$RELEASE_URL" && \
     cd /bin && chmod +x mcap
 
-#installing CrazySim
+#installing CrazySimhttps://github.com/JMU-ROBOTICS-VIVA/ros2_aruco.git
 WORKDIR $HOME
 RUN  git clone https://github.com/gtfactslab/CrazySim.git --recursive \
     && cd $HOME/CrazySim/crazyflie-lib-python \
@@ -155,10 +155,16 @@ RUN cd $HOME/CrazySim/crazyflie-firmware \
     
 #install other ROS2 ws packages
 WORKDIR $HOME/CrazySim/ros2_ws/src
-RUN git clone https://github.com/JMU-ROBOTICS-VIVA/ros2_aruco.git 
+
+# Copy directories to the workspace
+#COPY . $HOME/CrazySim/ros2_ws/src/icuas25_competition
+#COPY  $HOME/CrazySim/ros2_ws/src/icuas25_msgs
+#COPY ros2_aruco $HOME/CrazySim/ros2_ws/src/ros2_aruco
+
+#RUN git clone https://github.com/JMU-ROBOTICS-VIVA/ros2_aruco.git 
 #RUN --mount=type=ssh git clone git@github.com:larics/icuas25_competition.git
-RUN --mount=type=ssh git clone git@github.com:vanttec/icuas25_competition.git
-RUN --mount=type=ssh git clone git@github.com:larics/icuas25_msgs.git
+#RUN --mount=type=ssh git clone git@github.com:vanttec/icuas25_competition.git
+#RUN --mount=type=ssh git clone git@github.com:larics/icuas25_msgs.git
 
 WORKDIR $HOME/CrazySim/ros2_ws/src/crazyflie/scripts
 RUN rm $HOME/CrazySim/ros2_ws/src/crazyswarm2/crazyflie/scripts/crazyflie_server.py
@@ -194,7 +200,7 @@ RUN apt-get update &&  apt-get upgrade -y && apt-get install -y \
                    ros-${ROS2_DISTRO}-octomap-ros \
                    ros-${ROS2_DISTRO}-octomap-server \
                    ros-${ROS2_DISTRO}-octomap-msgs
-RUN apt install -y ros-${ROS2_DISTRO}-ros-gz${GZ_RELEASE}
+RUN apt install -y ros-${ROS2_DISTRO}-ros-gz${GZ_RELEASE} neovim
 
 RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/acados/lib" >> $HOME/.bashrc
 
@@ -203,6 +209,12 @@ RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/acados/lib" >> $HOME/.ba
 RUN echo "export ROS_LOCALHOST_ONLY=1" >> $HOME/.bashrc
 RUN echo "export ROS_DOMAIN_ID=$(shuf -i 1-101 -n 1)" >> $HOME/.bashrc
 
+# Arg for rebuild with cache
+ARG CACHE_DATE=unknown
+WORKDIR $HOME/CrazySim/ros2_ws/src
+COPY . $HOME/CrazySim/ros2_ws/src/icuas25_competition
+COPY icuas25_msgs $HOME/CrazySim/ros2_ws/src/icuas25_msgs
+COPY ros2_aruco $HOME/CrazySim/ros2_ws/src/ros2_aruco
 
 WORKDIR $HOME/CrazySim/ros2_ws
 

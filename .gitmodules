@@ -1,0 +1,6 @@
+[submodule "icuas25_msgs"]
+	path = icuas25_msgs
+	url = https://github.com/larics/icuas25_msgs.git
+[submodule "ros2_aruco"]
+	path = ros2_aruco
+	url = https://github.com/JMU-ROBOTICS-VIVA/ros2_aruco.git
