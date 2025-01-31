@@ -10,6 +10,13 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(icuas25_msgs REQUIRED)
+find_package(ros2_aruco_interfaces REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(crazyflie_interfaces REQUIRED)
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -23,7 +30,8 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-#add_executable(nav_test src/nav_test.cpp)
+add_executable(nav_test src/nav_test.cpp)
+ament_target_dependencies(nav_test rclcpp nav_msgs icuas25_msgs ros2_aruco_interfaces tf2_ros tf2_geometry_msgs crazyflie_interfaces)
 
 # Install Python modules
 ament_python_install_package(${PROJECT_NAME})
@@ -42,5 +50,11 @@ install(DIRECTORY
   worlds
   DESTINATION share/${PROJECT_NAME}/
 )
+
+install(TARGETS
+  nav_test
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 
 ament_package()
